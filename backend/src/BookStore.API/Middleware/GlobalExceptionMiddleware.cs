@@ -26,12 +26,21 @@ public class GlobalExceptionMiddleware
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error occurred: {Message}", ex.Message);
-            await HandleExceptionAsync(context, ex);
+            // Log estruturado com contexto completo
+            _logger.LogError(ex, 
+                "❌ Exceção não tratada capturada | Tipo: {ExceptionType} | Mensagem: {Message} | Path: {RequestPath} | Method: {RequestMethod} | IP: {RemoteIP} | UserAgent: {UserAgent}",
+                ex.GetType().Name,
+                ex.Message,
+                context.Request.Path,
+                context.Request.Method,
+                context.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
+                context.Request.Headers["User-Agent"].ToString());
+            
+            await HandleExceptionAsync(context, ex, _logger);
         }
     }
 
-    private static async Task HandleExceptionAsync(HttpContext context, Exception exception)
+    private static async Task HandleExceptionAsync(HttpContext context, Exception exception, ILogger<GlobalExceptionMiddleware> logger)
     {
         context.Response.ContentType = "application/json";
 
@@ -48,6 +57,7 @@ public class GlobalExceptionMiddleware
                     message = notFoundEx.Message,
                     type = "NotFound"
                 };
+                logger.LogWarning("⚠️ Recurso não encontrado: {Message}", notFoundEx.Message);
                 break;
 
             case ValidationException validationEx:
@@ -59,6 +69,7 @@ public class GlobalExceptionMiddleware
                     errors = validationEx.Errors,
                     type = "Validation"
                 };
+                logger.LogWarning("⚠️ Erro de validação: {Message} | Erros: {@Errors}", validationEx.Message, validationEx.Errors);
                 break;
 
             case UnauthorizedException unauthorizedEx:
@@ -69,6 +80,7 @@ public class GlobalExceptionMiddleware
                     message = unauthorizedEx.Message,
                     type = "Unauthorized"
                 };
+                logger.LogWarning("⚠️ Tentativa de acesso não autorizado: {Message}", unauthorizedEx.Message);
                 break;
 
             case BusinessException businessEx:
@@ -79,6 +91,7 @@ public class GlobalExceptionMiddleware
                     message = businessEx.Message,
                     type = "Business"
                 };
+                logger.LogWarning("⚠️ Erro de regra de negócio: {Message}", businessEx.Message);
                 break;
 
             default:
@@ -89,6 +102,9 @@ public class GlobalExceptionMiddleware
                     message = "An internal server error occurred",
                     type = "InternalError"
                 };
+                logger.LogError("🔥 Erro interno do servidor: {Message} | StackTrace: {StackTrace}", 
+                    exception.Message, 
+                    exception.StackTrace);
                 break;
         }
 

@@ -11,10 +11,12 @@ namespace BookStore.API.Services;
 public class PdfReportService
 {
     private readonly IReportService _reportService;
+    private readonly ILogger<PdfReportService> _logger;
 
-    public PdfReportService(IReportService reportService)
+    public PdfReportService(IReportService reportService, ILogger<PdfReportService> logger)
     {
         _reportService = reportService;
+        _logger = logger;
         
         // Configuração de licença do QuestPDF (uso não comercial/community)
         QuestPDF.Settings.License = LicenseType.Community;
@@ -25,6 +27,9 @@ public class PdfReportService
     /// </summary>
     public async Task<byte[]> GenerateLivrosPorAutorPdfAsync()
     {
+        var startTime = DateTime.UtcNow;
+        _logger.LogInformation("📄 Iniciando geração de relatório PDF de Livros por Autor...");
+
         // Obter dados da VIEW do banco
         var reportData = await _reportService.GetBooksByAuthorReportAsync();
         
@@ -35,7 +40,7 @@ public class PdfReportService
             .ToList();
 
         // Gerar PDF
-        return Document.Create(container =>
+        var document = Document.Create(container =>
         {
             container.Page(page =>
             {
@@ -130,7 +135,19 @@ public class PdfReportService
                         text.DefaultTextStyle(x => x.FontSize(8).FontColor(Colors.Grey.Darken1));
                     });
             });
-        })
-        .GeneratePdf();
+        });
+        
+        var pdfBytes = document.GeneratePdf();
+        
+        var duration = (DateTime.UtcNow - startTime).TotalMilliseconds;
+        var sizeKb = pdfBytes.Length / 1024.0;
+        
+        _logger.LogInformation("✅ Relatório PDF gerado com sucesso! | Autores: {AutoresCount} | Livros: {LivrosCount} | Tamanho: {SizeKB:F2} KB | Tempo: {Duration:F2} ms",
+            groupedData.Count(), 
+            reportData.Count(), 
+            sizeKb,
+            duration);
+        
+        return pdfBytes;
     }
 }

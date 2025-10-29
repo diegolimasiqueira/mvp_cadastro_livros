@@ -7,8 +7,37 @@ using BookStore.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
+using Serilog.Events;
 
-var builder = WebApplication.CreateBuilder(args);
+// Configure Serilog BEFORE creating the builder
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
+    .MinimumLevel.Override("System", LogEventLevel.Warning)
+    .Enrich.FromLogContext()
+    .Enrich.WithMachineName()
+    .Enrich.WithThreadId()
+    .Enrich.WithProcessId()
+    .WriteTo.Console(
+        outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}")
+    .WriteTo.File(
+        path: "logs/bookstore-.log",
+        rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 30,
+        outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}] [{Level:u3}] [{SourceContext}] {Message:lj} {Properties:j}{NewLine}{Exception}")
+    .WriteTo.Seq("http://localhost:5341") // Opcional: para Seq (ferramenta de visualização)
+    .CreateLogger();
+
+try
+{
+    Log.Information("🚀 Iniciando BookStore API...");
+
+    var builder = WebApplication.CreateBuilder(args);
+
+    // Add Serilog to the application
+    builder.Host.UseSerilog();
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -133,16 +162,41 @@ app.UseSwaggerUI(options =>
 });
 
 // Global Exception Handling Middleware
-app.UseMiddleware<GlobalExceptionMiddleware>();
+    app.UseMiddleware<GlobalExceptionMiddleware>();
 
-app.UseCors();
+    // Add Serilog request logging
+    app.UseSerilogRequestLogging(options =>
+    {
+        options.MessageTemplate = "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms";
+        options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+        {
+            diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value);
+            diagnosticContext.Set("RequestScheme", httpContext.Request.Scheme);
+            diagnosticContext.Set("UserAgent", httpContext.Request.Headers["User-Agent"].ToString());
+            diagnosticContext.Set("RemoteIP", httpContext.Connection.RemoteIpAddress?.ToString());
+        };
+    });
 
-app.UseAuthentication();
-app.UseAuthorization();
+    app.UseCors();
 
-app.MapControllers();
+    app.UseAuthentication();
+    app.UseAuthorization();
 
-app.Run();
+    app.MapControllers();
+
+    Log.Information("✅ BookStore API iniciada com sucesso! Aguardando requisições...");
+    
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "❌ Erro fatal ao iniciar a aplicação BookStore API");
+}
+finally
+{
+    Log.Information("🛑 Encerrando BookStore API...");
+    Log.CloseAndFlush();
+}
 
 // Tornar Program acessível para testes de integração
 public partial class Program { }

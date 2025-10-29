@@ -18,11 +18,13 @@ public class LivrosController : ControllerBase
 {
     private readonly ILivroService _livroService;
     private readonly IValidator<LivroRequestDto> _validator;
+    private readonly ILogger<LivrosController> _logger;
 
-    public LivrosController(ILivroService livroService, IValidator<LivroRequestDto> validator)
+    public LivrosController(ILivroService livroService, IValidator<LivroRequestDto> validator, ILogger<LivrosController> logger)
     {
         _livroService = livroService;
         _validator = validator;
+        _logger = logger;
     }
 
     /// <summary>
@@ -76,13 +78,22 @@ public class LivrosController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<LivroResponseDto>> Create([FromBody] LivroRequestDto request)
     {
+        _logger.LogInformation("📘 Iniciando criação de novo livro | Título: {Titulo} | Editora: {Editora} | Ano: {Ano}",
+            request.Titulo, request.Editora, request.AnoPublicacao);
+
         var validationResult = await _validator.ValidateAsync(request);
         if (!validationResult.IsValid)
         {
+            _logger.LogWarning("⚠️ Falha na validação ao criar livro | Título: {Titulo} | Erros: {@ValidationErrors}",
+                request.Titulo, validationResult.Errors);
             return BadRequest(validationResult.Errors);
         }
 
         var livro = await _livroService.CreateAsync(request);
+        
+        _logger.LogInformation("✅ Livro criado com sucesso! | ID: {LivroId} | Título: {Titulo} | Autores: {AutoresCount} | Assuntos: {AssuntosCount} | Preços: {PrecosCount} | Usuario: {Usuario}",
+            livro.CodI, livro.Titulo, request.AutoresIds?.Count ?? 0, request.AssuntosIds?.Count ?? 0, request.Precos?.Count ?? 0, User.Identity?.Name ?? "Anônimo");
+        
         return CreatedAtAction(nameof(GetById), new { id = livro.CodI }, livro);
     }
 
