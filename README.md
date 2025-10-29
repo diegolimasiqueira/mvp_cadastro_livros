@@ -134,17 +134,30 @@ createdb -U postgres bookstoredb
 # Nome: bookstoredb
 ```
 
-3. **Configure a connection string**:
+3. **Configure suas credenciais locais**:
 ```bash
 cd backend/src/BookStore.API
 
-# Copie o arquivo de configuração
-cp appsettings.json appsettings.Local.json
-
-# Edite appsettings.Local.json
-# Ajuste a ConnectionString conforme seu ambiente:
-# "DefaultConnection": "Host=localhost;Port=5432;Database=bookstoredb;Username=postgres;Password=sua_senha"
+# Edite o arquivo appsettings.Development.json
+# Ajuste APENAS a senha na ConnectionString para sua senha local do PostgreSQL
+nano appsettings.Development.json  # ou use seu editor preferido (VS Code, vim, etc.)
 ```
+
+Exemplo do conteúdo do `appsettings.Development.json`:
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Port=5432;Database=bookstoredb;Username=postgres;Password=SUA_SENHA_AQUI"
+  },
+  ...
+}
+```
+
+> ⚠️ **IMPORTANTE - Segurança**: 
+> - **NUNCA commit o `appsettings.Development.json` com sua senha pessoal!**
+> - Antes de fazer commit, **reverta a senha para `postgres123`** (senha padrão do Docker).
+> - Este arquivo está configurado com a senha padrão do repositório para facilitar execução com Docker.
+> - Para seu ambiente local, você ajusta a senha temporariamente, mas **não deve committá-la**.
 
 4. **Instale a ferramenta EF Core CLI** (se não tiver):
 ```bash
@@ -156,28 +169,43 @@ dotnet tool install --global dotnet-ef
 ```bash
 cd backend
 
+# Passe a connection string diretamente (mais confiável que appsettings)
+# Substitua "SUA_SENHA_AQUI" pela senha do seu PostgreSQL local
 dotnet ef database update \
   --project src/BookStore.Infrastructure \
-  --startup-project src/BookStore.API
+  --startup-project src/BookStore.API \
+  --connection "Host=localhost;Port=5432;Database=bookstoredb;Username=postgres;Password=SUA_SENHA_AQUI"
 
-# Isso irá:
-# ✅ Criar todas as tabelas (Livro, Autor, Assunto, etc.)
-# ✅ Criar os relacionamentos (Livro_Autor, Livro_Assunto, LivroPreco)
-# ✅ Criar a VIEW (vw_livros_por_autor) para relatórios
-# ✅ Inserir dados iniciais (usuário admin)
+# Exemplo com senha "Master@123":
+# dotnet ef database update --project src/BookStore.Infrastructure --startup-project src/BookStore.API --connection "Host=localhost;Port=5432;Database=bookstoredb;Username=postgres;Password=Master@123"
 ```
+
+**O que a migration faz automaticamente:**
+- ✅ Criar todas as tabelas (Livro, Autor, Assunto, FormaCompra)
+- ✅ Criar os relacionamentos (Livro_Autor, Livro_Assunto, LivroPreco)
+- ✅ Criar a VIEW (vw_livros_por_autor) para relatórios
+- ✅ Inserir dados iniciais (usuário admin com senha Admin@123)
 
 6. **Execute a API**:
 ```bash
 cd backend/src/BookStore.API
+
+# A API usará automaticamente o appsettings.Development.json
+# (com a senha que você configurou no passo 3)
 dotnet run
 ```
 
-A API estará disponível em http://localhost:5000 (ou porta configurada)
+A API estará disponível em **http://localhost:8080** (a porta pode variar, verifique o console)
+- **Swagger UI**: http://localhost:8080/swagger (ou a porta exibida no console)
+- **Health Check**: http://localhost:8080/health
 
 **Comandos úteis para gerenciar o banco de dados local**:
 
+> **💡 Dica:** Para todos os comandos abaixo, você pode precisar passar o parâmetro `--connection` com sua connection string, caso o `dotnet ef` CLI não carregue automaticamente o `appsettings.Development.json`.
+
 ```bash
+cd backend
+
 # Verificar migrations pendentes
 dotnet ef migrations list \
   --project src/BookStore.Infrastructure \
@@ -188,7 +216,7 @@ dotnet ef migrations add NomeDaMigration \
   --project src/BookStore.Infrastructure \
   --startup-project src/BookStore.API
 
-# Reverter a última migration
+# Reverter a última migration (passe --connection se necessário)
 dotnet ef database update NomeMigrationAnterior \
   --project src/BookStore.Infrastructure \
   --startup-project src/BookStore.API
@@ -201,11 +229,13 @@ dotnet ef migrations remove \
 # Resetar o banco de dados (DROP + CREATE + Migrations)
 dotnet ef database drop --force \
   --project src/BookStore.Infrastructure \
-  --startup-project src/BookStore.API
+  --startup-project src/BookStore.API \
+  --connection "Host=localhost;Port=5432;Database=bookstoredb;Username=postgres;Password=SUA_SENHA"
 
 dotnet ef database update \
   --project src/BookStore.Infrastructure \
-  --startup-project src/BookStore.API
+  --startup-project src/BookStore.API \
+  --connection "Host=localhost;Port=5432;Database=bookstoredb;Username=postgres;Password=SUA_SENHA"
 ```
 
 #### Frontend
@@ -548,11 +578,13 @@ mvp_cadastro_livros/
 - ❌ Usar credenciais padrão em produção
 
 #### 📝 **Arquivos com credenciais neste projeto:**
-- `backend/src/BookStore.API/appsettings.json` - Connection string e JWT secret
+- `backend/src/BookStore.API/appsettings.json` - Connection string (Docker) e JWT secret
+- `backend/src/BookStore.API/appsettings.Development.json` - Connection string (Local com senha padrão `postgres123`)
 - `docker-compose.yml` - Senha do PostgreSQL
-- `backend/src/BookStore.API/appsettings.Development.json` - Connection string local
 
 **Estes arquivos foram commitados propositalmente apenas para facilitar a execução e avaliação deste desafio técnico.**
+
+> 💡 **Para desenvolvimento local**: O `appsettings.Development.json` está configurado com a senha padrão `postgres123`. Se você alterar para sua senha local, **lembre-se de reverter antes de fazer commit!**
 
 ## 📦 Build para Produção
 

@@ -2,7 +2,6 @@
 backend/src/**/bin/
 backend/src/**/obj/
 backend/src/**/*.user
-backend/src/**/appsettings.Local.json
 backend/TestResults/
 backend/tests/**/bin/
 backend/tests/**/obj/

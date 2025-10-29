@@ -24,7 +24,8 @@ export const routes: Routes = [
       { path: 'formas-compra', loadComponent: () => import('./components/formas-compra/formas-compra-list.component').then(m => m.FormasCompraListComponent) },
       { path: 'formas-compra/novo', loadComponent: () => import('./components/formas-compra/formas-compra-form.component').then(m => m.FormasCompraFormComponent) },
       { path: 'formas-compra/editar/:id', loadComponent: () => import('./components/formas-compra/formas-compra-form.component').then(m => m.FormasCompraFormComponent) },
-      { path: 'relatorios', loadComponent: () => import('./components/reports/reports.component').then(m => m.ReportsComponent) }
+      { path: 'relatorios', loadComponent: () => import('./components/reports/reports.component').then(m => m.ReportsComponent) },
+      { path: 'health', loadComponent: () => import('./components/health/health.component').then(m => m.HealthComponent) }
     ]
   },
   { path: '**', redirectTo: '/livros' }

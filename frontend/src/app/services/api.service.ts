@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Livro, LivroRequest, Autor, AutorRequest, Assunto, AssuntoRequest, 
-         FormaCompra, FormaCompraRequest, BooksByAuthorReport, PagedResponse } from '../models';
+         FormaCompra, FormaCompraRequest, BooksByAuthorReport, PagedResponse, HealthCheckResponse } from '../models';
 
 @Injectable({
   providedIn: 'root'
@@ -139,6 +139,11 @@ export class ApiService {
     return this.http.get(`${this.API_URL}/reports/books-by-author/excel`, {
       responseType: 'blob'
     });
+  }
+
+  // Health Check
+  getHealthCheck(): Observable<HealthCheckResponse> {
+    return this.http.get<HealthCheckResponse>(`${this.API_URL}/health/detailed`);
   }
 }
 

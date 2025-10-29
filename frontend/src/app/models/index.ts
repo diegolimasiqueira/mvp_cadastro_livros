@@ -98,3 +98,6 @@ export interface BooksByAuthorReport {
   formasCompra: string;
 }
 
+// Health Models
+export * from './health.model';
+

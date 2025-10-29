@@ -171,6 +171,11 @@ import { AuthService } from '../../services/auth.service';
           <i class="bi bi-file-earmark-text"></i>
           <span>Relatórios</span>
         </a>
+        <a routerLink="/health" routerLinkActive="active" class="nav-link"
+           [title]="!isExpanded ? 'Status do Sistema' : ''">
+          <i class="bi bi-heart-pulse"></i>
+          <span>Status</span>
+        </a>
       </nav>
     </div>
 
