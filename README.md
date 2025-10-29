@@ -369,6 +369,12 @@ docker exec -it bookstore-postgres psql -U postgres -d bookstoredb
 
 ## 🗄️ Estrutura do Banco de Dados
 
+### 📊 Diagrama Entidade-Relacionamento
+
+Para visualizar o diagrama completo da modelagem de dados, acesse: **[DATABASE_SCHEMA.md](DATABASE_SCHEMA.md)**
+
+O diagrama Mermaid será renderizado automaticamente no GitHub com todas as tabelas, relacionamentos e cardinalidades.
+
 ### Tabelas Principais
 - **Livro**: Informações básicas dos livros
 - **Autor**: Cadastro de autores
