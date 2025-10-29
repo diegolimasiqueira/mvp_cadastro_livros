@@ -1,0 +1,35 @@
+DESAFIO
+
+
+Objetivo:
+Criar um projeto utilizando as boas práticas de mercado e apresentar o mesmo demonstrando o passo a passo de sua criação (base de dados, tecnologias, aplicação, metodologias, frameworks, etc).
+
+Projeto:
+	O projeto consiste em um cadastro de livros. 
+No final deste documento foi disponibilizado um modelo dos dados.
+
+Tecnologia:
+	A tecnologia a ser utilizada é sempre Web e referente a vaga em que está concorrendo (C# ou Java). 
+A implementação do projeto ficará por sua total responsabilidade assim como os componentes a serem utilizados (relatórios, camada de persistência, etc) com algumas premissas.
+	É opcional a utilização do angular, mas será considerado um diferencial.
+O código deve ser disponibilizado em repositório GIT de sua preferência e acesso. 
+	O banco de dados é o de sua preferência. A utilização de camada de persistência também é escolha sua.
+
+Instruções:
+Deve ser feito CRUD para Livro, Autor e Assunto conforme o modelo de dados.
+A tela inicial pode ter um menu simples ou mesmo links direto para as telas construídas.
+O modelo do banco deve ser seguido integralmente, salvo para ajustes de melhoria de performance.
+A interface pode ser simples, mas precisa utilizar algum CSS que comande no mínimo a cor e tamanho dos componentes em tela (utilização do bootstrap será um diferencial).
+	Os campos que pedem formatação devem possuir o mesmo (data, moeda, etc).
+	Deve ser feito obrigatoriamente um relatório (utilizando o componente de relatórios de sua preferência(Crystal, ReportViewer, etc) e a consulta desse relatório deve ser proveniente de uma view criada no banco de dados. Este relatório pode ser simples, mas permita o entendimento dos dados. O relatório deve trazer as informações das 3 tabelas principais agrupando os dados por autor (atenção pois um livro pode ter mais de autor).
+	TDD (Test Driven Development) será considerado um diferencial.
+	Tratamento de erros é essencial, evite try catchs genéricos em situações que permitam utilização de tratamentos específicos, como os possíveis erros de banco de dados.
+	As mensagens emitidas pelo sistema, labels e etc ficam a seu critério.
+	O modelo inicial não prevê, mas é necessário incluir uma forma de informar o valor (em R$) do livro dependendo da forma de compra do mesmo (exemplos: balcão, self-service, internet, evento, etc). Deve ser feito tanto o modelo quanto a implementação necessária para que esteja disponível para o usuário final.
+	Guarde todos os scripts e instruções para implantação de seu projeto, eles devem ser demonstrados na apresentação.
+	
+Apresentação:
+	Assim que finalizado o projeto, será agendada sua apresentação. A ideia é discutir seu projeto, avaliar o mesmo funcionalmente e tecnicamente.
+
+Modelo:
+imagem na raiz: modelodadosdesafio.png caso não consiga ver a imagem, me pessa que colo um print no chat, alias deixarei colado no prompt inicial.

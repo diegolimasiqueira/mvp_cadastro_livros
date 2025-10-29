@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <Format>cobertura,opencover</Format>
+          <Exclude>[*.Tests]*,[*]*.Infrastructure.*,[*]*.Migrations.*,[*]*AuthService,[*]*Program</Exclude>
+          <ExcludeByFile>**/Migrations/**/*.cs,**/Program.cs,**/DependencyInjection.cs</ExcludeByFile>
+          <IncludeDirectory>../src/</IncludeDirectory>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>
+
+
+
