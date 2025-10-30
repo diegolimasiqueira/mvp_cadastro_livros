@@ -18,6 +18,16 @@ Sistema completo de gerenciamento de livros desenvolvido com **.NET 9** e **Angu
   - Swagger/OpenAPI para documentação da API
   - QuestPDF para geração de relatórios em PDF
   - EPPlus para geração de relatórios em Excel
+  - **Serilog** para logging estruturado com múltiplos destinos (Console, Arquivo, Seq)
+
+- **Logging e Observabilidade**:
+  - 📊 Logging estruturado com **Serilog**
+  - 🪵 Logs em arquivo com rotação diária (30 dias de retenção)
+  - 🌐 Integração opcional com **Seq** para visualização web
+  - 📈 Rastreamento de operações críticas (criação de livros, geração de PDFs, etc.)
+  - ❌ Tracking completo de erros e exceções com contexto
+  - ⚡ Métricas de performance (tempo de resposta, etc.)
+  - 📝 Ver documentação completa: **[LOGGING_README.md](LOGGING_README.md)**
 
 ### Frontend (Angular v20)
 - **Standalone Components** com Signals para reatividade
@@ -46,6 +56,16 @@ Sistema completo de gerenciamento de livros desenvolvido com **.NET 9** e **Angu
 - ✅ Validação completa de dados no backend e frontend
 - ✅ Feedback visual imediato para erros de validação
 - ✅ Mensagens de erro claras e objetivas
+
+### Observabilidade e Monitoramento
+- ✅ **Logging Estruturado** com Serilog:
+  - Logs de todas as operações (criação de livros, geração de relatórios, etc.)
+  - Tracking completo de erros e exceções com contexto
+  - Métricas de performance (tempo de resposta)
+  - Logs em arquivo com rotação diária
+  - Integração com Seq para visualização web
+- ✅ **Health Check** detalhado com status do banco de dados
+- ✅ **Página de Status** no frontend mostrando saúde da aplicação
 
 ## 🚀 Executando o Projeto
 
@@ -100,6 +120,49 @@ docker compose down
 docker compose down -v
 docker compose up -d
 ```
+
+9. **Visualizar Logs** (Opcional - Recomendado):
+```bash
+# Instalar Seq para visualização web de logs
+docker run -d \
+  --name seq \
+  -p 5341:80 \
+  -e ACCEPT_EULA=Y \
+  -e SEQ_FIRSTRUN_ADMINPASSWORD=admin \
+  datalust/seq:latest
+
+# Acesse: http://localhost:5341 (Login: admin/admin)
+# Documentação completa: LOGGING_README.md
+```
+
+**Logs também estão disponíveis em**:
+- Console do terminal (`docker logs bookstore-backend`)
+- Arquivos em `backend/logs/bookstore-YYYY-MM-DD.log`
+- Interface web do Seq em http://localhost:5341
+
+#### 🔄 Reconstruir Imagens (após alterações no código)
+
+Se você fez alterações no código ou está com problemas (ex: página de Status não aparece), reconstrua as imagens:
+
+```bash
+# Opção 1: Usando o script automatizado
+./rebuild-docker.sh
+
+# Opção 2: Manualmente
+docker compose down
+docker compose build --no-cache
+docker compose up -d
+
+# Verificar se tudo está rodando
+docker compose ps
+docker compose logs -f
+```
+
+**⚠️ Importante**: Sempre reconstrua as imagens após:
+- Alterações no código frontend ou backend
+- Atualização de dependências (package.json, .csproj)
+- Adição de novos componentes ou funcionalidades
+- Mudanças em arquivos de configuração
 
 ### Execução Local (Sem Docker)
 
@@ -287,7 +350,13 @@ O frontend estará disponível em http://localhost:4200
 
 ### Backend
 
-O projeto possui testes unitários e de integração com cobertura mínima de 80%.
+O projeto possui **91 testes** (66 unitários + 25 de integração) com **71% de cobertura de código**.
+
+**Resultados dos Testes:**
+- ✅ **Testes Unitários**: 66/66 passando (100%)
+- ✅ **Testes de Integração**: 25/25 passando (100%)
+- 📊 **Cobertura de Linha**: 71%
+- 📊 **Cobertura de Branch**: 51%
 
 #### Executar todos os testes:
 ```bash
@@ -327,7 +396,14 @@ dotnet test tests/BookStore.IntegrationTests/BookStore.IntegrationTests.csproj
 
 ### Frontend
 
-O projeto possui testes com cobertura mínima de 70%.
+O projeto possui **15 testes** com **54% de cobertura de código**.
+
+**Resultados dos Testes:**
+- ✅ **Testes**: 15/15 passando (100%)
+- 📊 **Cobertura de Statements**: 54.83%
+- 📊 **Cobertura de Branches**: 0%
+- 📊 **Cobertura de Functions**: 38.46%
+- 📊 **Cobertura de Lines**: 54.09%
 
 #### Executar todos os testes:
 ```bash
@@ -608,6 +684,26 @@ cd frontend
 npm run build
 # Os arquivos estarão em frontend/dist/frontend/browser/
 ```
+
+## 📚 Documentação Adicional
+
+Este projeto inclui documentação detalhada sobre tópicos específicos:
+
+### 🪵 **[LOGGING_README.md](LOGGING_README.md)** - Sistema de Logging Estruturado
+Documentação completa sobre o sistema de logging com Serilog:
+- Como os logs são estruturados e onde são salvos
+- Instalação e configuração do Seq para visualização web
+- Exemplos de queries e filtros úteis
+- Guia de troubleshooting e boas práticas
+
+### 📊 **[DATABASE_SCHEMA.md](DATABASE_SCHEMA.md)** - Diagrama do Modelo de Dados
+Diagrama ER (Entity-Relationship) completo do banco de dados em formato Mermaid.
+
+### 🗄️ **[SEED_PROCEDURES_README.md](SEED_PROCEDURES_README.md)** - Stored Procedures
+Documentação das stored procedures PL/pgSQL para população inicial do banco:
+- Procedures para inserção de dados de exemplo
+- Como executar e utilizar as procedures
+- Exemplos de uso e troubleshooting
 
 ## 🤝 Contribuindo
 

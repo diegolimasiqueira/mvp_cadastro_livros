@@ -40,5 +40,8 @@ yarn-error.log*
 backend/logs/
 backend/src/**/logs/
 
+# Comandos pessoais (uso local apenas)
+SEQ_COMMANDS.md
+
 
 
